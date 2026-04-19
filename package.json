@@ -1,0 +1,14 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "discord.js": "^14.13.0",
+    "@discordjs/voice": "^0.16.0",
+    "libsodium-wrappers": "^0.7.13",
+    "opusscript": "^0.0.8"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
