@@ -1,40 +1,47 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel } = require('@discordjs/voice');
 
-// قائمة البوتات (حط ايدي السيرفر والروات هنا)
+// إعدادات السيرفر والرومات اللي عطيتني إياها
+const guildId = '1249305633849741392';
 const botsData = [
-    { token: process.env.TOKEN1, channelId: '1495450046554964159', guildId: '1249305633849741392' },
-    { token: process.env.TOKEN2, channelId: '1445355533698596955', guildId: '1249305633849741392' },
-    { token: process.env.TOKEN3, channelId: '1445355502895759400', guildId: '1249305633849741392' },
-    { token: process.env.TOKEN4, channelId: '1495236948674215998', guildId: '1249305633849741392' }
+    { token: process.env.TOKEN1, channelId: '1495450046554964159' },
+    { token: process.env.TOKEN2, channelId: '1445355533698596955' },
+    { token: process.env.TOKEN3, channelId: '1445355502895759400' },
+    { token: process.env.TOKEN4, channelId: '1495240194306343005' }
 ];
 
 botsData.forEach((config, index) => {
-    const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
+    const client = new Client({ 
+        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] 
+    });
 
     client.on('ready', () => {
         console.log(`Bot ${index + 1} (${client.user.tag}) is Online!`);
         
-        // وظيفة الدخول للروم كل 30 ثانية
+        // محاولة الدخول للروم المخصص له
         setInterval(() => {
-            const channel = client.channels.cache.get(config.channelId);
-            if (channel) {
-                joinVoiceChannel({
-                    channelId: config.channelId,
-                    guildId: config.guildId,
-                    adapterCreator: channel.guild.voiceAdapterCreator,
-                    selfDeaf: true // عشان ما يسمع أحد ويوفر نت
-                });
+            try {
+                const channel = client.channels.cache.get(config.channelId);
+                if (channel) {
+                    joinVoiceChannel({
+                        channelId: config.channelId,
+                        guildId: guildId,
+                        adapterCreator: channel.guild.voiceAdapterCreator,
+                        selfDeaf: true
+                    });
+                }
+            } catch (error) {
+                console.error(`Error for Bot ${index + 1}:`, error);
             }
-        }, 30000);
+        }, 30000); // يفحص كل 30 ثانية عشان يضمن البقاء
     });
 
-    client.login(config.token).catch(err => console.error(`Error Login Bot ${index + 1}:`, err));
+    client.login(config.token).catch(err => console.error(`Login failed for Bot ${index + 1}:`, err));
 });
 
-// سيرفر وهمي عشان Render يبقى شغال
+// سيرفر وهمي عشان Render ما يطفي الخدمة
 const http = require('http');
 http.createServer((req, res) => {
-    res.write('Army of Bots is Running!');
+    res.write('Army of Bots is Live!');
     res.end();
 }).listen(8080);
