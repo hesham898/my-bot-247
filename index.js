@@ -1,47 +1,35 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel } = require('@discordjs/voice');
 
-// إعدادات السيرفر والرومات اللي عطيتني إياها
 const guildId = '1249305633849741392';
-const botsData = [
-    { token: process.env.TOKEN1, channelId: '1495450046554964159' },
-    { token: process.env.TOKEN2, channelId: '1445355533698596955' },
-    { token: process.env.TOKEN3, channelId: '1445355502895759400' },
-    { token: process.env.TOKEN4, channelId: '1495240194306343005' }
+const bots = [
+    { t: process.env.TOKEN1, c: '1495450046554964159' },
+    { t: process.env.TOKEN2, c: '1445355533698596955' },
+    { t: process.env.TOKEN3, c: '1445355502895759400' },
+    { t: process.env.TOKEN4, c: '1495240194306343005' }
 ];
 
-botsData.forEach((config, index) => {
-    const client = new Client({ 
-        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] 
-    });
+bots.forEach((bot, i) => {
+    if (!bot.t) return; // لو التوكن مو موجود يسحب عليه
+    const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
 
     client.on('ready', () => {
-        console.log(`Bot ${index + 1} (${client.user.tag}) is Online!`);
+        console.log(`Bot ${i + 1} (${client.user.tag}) Locked to Room: ${bot.c}`);
         
-        // محاولة الدخول للروم المخصص له
         setInterval(() => {
-            try {
-                const channel = client.channels.cache.get(config.channelId);
-                if (channel) {
-                    joinVoiceChannel({
-                        channelId: config.channelId,
-                        guildId: guildId,
-                        adapterCreator: channel.guild.voiceAdapterCreator,
-                        selfDeaf: true
-                    });
-                }
-            } catch (error) {
-                console.error(`Error for Bot ${index + 1}:`, error);
+            const channel = client.channels.cache.get(bot.c);
+            if (channel) {
+                joinVoiceChannel({
+                    channelId: bot.c,
+                    guildId: guildId,
+                    adapterCreator: channel.guild.voiceAdapterCreator,
+                    selfDeaf: true
+                });
             }
-        }, 30000); // يفحص كل 30 ثانية عشان يضمن البقاء
+        }, 20000); // كل 20 ثانية يثبت مكانه
     });
 
-    client.login(config.token).catch(err => console.error(`Login failed for Bot ${index + 1}:`, err));
+    client.login(bot.t);
 });
 
-// سيرفر وهمي عشان Render ما يطفي الخدمة
-const http = require('http');
-http.createServer((req, res) => {
-    res.write('Army of Bots is Live!');
-    res.end();
-}).listen(8080);
+require('http').createServer((req, res) => { res.write('Fixed!'); res.end(); }).listen(8080);
